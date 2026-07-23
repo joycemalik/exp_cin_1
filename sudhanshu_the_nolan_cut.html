@@ -74,8 +74,8 @@
         #story-timeline {
             position: relative;
             z-index: 10;
-            /* Create a very tall page to allow for deep scrolling */
-            height: 800vh; 
+            /* Deep cinematic scroll height for smooth, unhurried pacing */
+            height: 1200vh; 
         }
 
         .scene {
@@ -86,7 +86,7 @@
             width: 80%;
             text-align: center;
             opacity: 0;
-            transition: opacity 0.5s ease-out, transform 2s ease-out;
+            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.6s cubic-bezier(0.25, 1, 0.5, 1);
             pointer-events: none;
         }
 
@@ -96,11 +96,11 @@
         }
         
         .scene.pre-active {
-            transform: translate(-50%, -50%) scale(0.95);
+            transform: translate(-50%, -50%) scale(0.94);
         }
 
         .scene.post-active {
-            transform: translate(-50%, -50%) scale(1.05);
+            transform: translate(-50%, -50%) scale(1.06);
         }
 
         h2 {
@@ -175,6 +175,94 @@
             0%, 100% { opacity: 0.2; }
             50% { opacity: 0.8; }
         }
+
+        /* Music Control Button (Minimal Icon Only) */
+        .music-icon-btn {
+            position: fixed;
+            bottom: 4vh;
+            right: 4vw;
+            z-index: 60;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .music-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.1);
+        }
+
+        #youtube-audio-container {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            left: -9999px;
+        }
+
+        /* Title Drop Impact Animation ("The Will Endures") */
+        .title-card-impact {
+            color: #f59e0b;
+            letter-spacing: 1.2em;
+            margin-top: 24px;
+            font-size: clamp(0.9rem, 2.2vw, 1.8rem);
+            font-weight: 600;
+            text-transform: uppercase;
+            text-shadow: 0 0 35px rgba(245, 158, 11, 0.9), 0 0 15px rgba(239, 68, 68, 0.9);
+            transform: scale(1.35);
+            opacity: 0;
+            filter: blur(12px);
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease-out, filter 0.8s ease-out;
+        }
+
+        .scene.active .title-card-impact {
+            transform: scale(1);
+            opacity: 1;
+            filter: blur(0px);
+        }
+
+        /* Climax Happy Birthday Text */
+        .climax-hb {
+            font-size: clamp(2.5rem, 6vw, 6rem) !important;
+            font-weight: 300 !important;
+            letter-spacing: 0.5em !important;
+            color: #ffffff;
+            text-shadow: 0 0 60px rgba(245, 158, 11, 1), 0 0 25px rgba(239, 68, 68, 0.9);
+            transform: scale(0.92);
+            transition: transform 1.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease-out;
+        }
+
+        .scene.active .climax-hb {
+            transform: scale(1.05);
+        }
+
+        /* Christopher Nolan Smash-Cut to Black */
+        #nolan-blackout {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.05s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -186,11 +274,24 @@
     <div class="letterbox bottom"></div>
 
     <div id="event-horizon-flash"></div>
+
+    <!-- Nolan Cut-to-Black Overlay -->
+    <div id="nolan-blackout"></div>
     
     <!-- Cinematic Visual Ticking (Nolan's signature suspense) -->
     <div class="visual-tick" id="tick-indicator"></div>
 
     <div class="scroll-indicator" id="scroll-hint">Scroll to navigate the voyage</div>
+
+    <!-- Hidden YouTube Audio Player -->
+    <div id="youtube-audio-container">
+        <div id="yt-player"></div>
+    </div>
+
+    <!-- Music Control UI (Minimal Icon Only) -->
+    <button class="music-icon-btn" id="music-btn" title="Toggle Sound" aria-label="Toggle Sound">
+        <span id="music-icon">🔊</span>
+    </button>
 
     <!-- These act as subtitles for the visual experience -->
     <div id="story-timeline">
@@ -217,10 +318,10 @@
         </div>
         <div class="scene" id="scene-7">
             <div class="title-massive">Sudhanshu</div>
-            <div class="subtitle-small" style="color: #ff3333; letter-spacing: 1.2em; margin-top: 20px;">The Will Endures</div>
+            <div class="subtitle-small title-card-impact">The Will Endures</div>
         </div>
         <div class="scene" id="scene-8">
-            <h2>Happy Birthday</h2>
+            <h2 class="climax-hb">Happy Birthday</h2>
         </div>
     </div>
 
@@ -385,15 +486,15 @@
 
         // The scenes Array maps percentage milestones to HTML elements
         const scenes = [
-            { id: 'scene-0', start: 0.02, end: 0.12 }, // Time is an ocean
-            { id: 'scene-1', start: 0.15, end: 0.25 }, // Swept away
-            { id: 'scene-2', start: 0.28, end: 0.38 }, // Dictate the flow
-            { id: 'scene-3', start: 0.42, end: 0.52 }, // Warps the voyage
-            { id: 'scene-4', start: 0.56, end: 0.66 }, // Complete orbit
-            { id: 'scene-5', start: 0.70, end: 0.80 }, // Measure of age
-            { id: 'scene-6', start: 0.84, end: 0.90 }, // Expansion of era
-            { id: 'scene-7', start: 0.92, end: 0.96 }, // SUDHANSHU
-            { id: 'scene-8', start: 0.97, end: 1.00 }  // Happy Birthday
+            { id: 'scene-0', start: 0.02, end: 0.10 }, // Time is an ocean
+            { id: 'scene-1', start: 0.13, end: 0.22 }, // Swept away
+            { id: 'scene-2', start: 0.25, end: 0.34 }, // Dictate the flow
+            { id: 'scene-3', start: 0.37, end: 0.46 }, // Warps the voyage
+            { id: 'scene-4', start: 0.49, end: 0.58 }, // Complete orbit
+            { id: 'scene-5', start: 0.61, end: 0.69 }, // Measure of age
+            { id: 'scene-6', start: 0.72, end: 0.81 }, // Expansion of era
+            { id: 'scene-7', start: 0.84, end: 0.92 }, // SUDHANSHU / The Will Endures
+            { id: 'scene-8', start: 0.935, end: 0.98 } // Happy Birthday (Climax)
         ];
 
         const clock = new THREE.Clock();
@@ -415,23 +516,20 @@
                 setTimeout(() => { tickEl.style.opacity = 0; }, 100);
             }
 
-            // Smooth out the scroll (Lerp) to give it "weight" and momentum
-            scrollProgress += (targetScrollProgress - scrollProgress) * 0.05;
+            // Heavy, buttery smooth scroll lerp (gives maximum cinematic weight)
+            scrollProgress += (targetScrollProgress - scrollProgress) * 0.035;
 
             // --- CAMERA & DIRECTOR LOGIC ---
-            
-            // Start far away, slowly push in. 
-            // At the very end (scroll > 0.85), plunge *into* the black hole.
             const startZ = 85;
             
             let currentZ;
-            if (scrollProgress < 0.85) {
+            if (scrollProgress < 0.80) {
                 // Slow push in, passing the Monoliths
-                currentZ = startZ - (scrollProgress * 65); 
+                currentZ = startZ - (scrollProgress * 62); 
             } else {
-                // Plunge into the singularity (accelerating)
-                const plungeProgress = (scrollProgress - 0.85) / 0.15; // Normalize 0.85-1.0 to 0.0-1.0
-                currentZ = (startZ - 55.25) - (Math.pow(plungeProgress, 4) * 40);
+                // Plunge into the singularity (smooth quadratic curve for elegant pacing)
+                const plungeProgress = (scrollProgress - 0.80) / 0.20; // Normalize 0.80-1.0 to 0.0-1.0
+                currentZ = (startZ - 49.6) - (Math.pow(plungeProgress, 2) * 45);
             }
             
             camera.position.z = currentZ;
@@ -486,18 +584,37 @@
             const pulseScale = 1 + (Math.sin(time * (1 + scrollProgress*3)) * 0.02);
             accretionDisk.scale.set(pulseScale, pulseScale, pulseScale);
 
-            // Handle the final whiteout flash (passing the event horizon)
+            // --- THE COLOR SHIFT (WARM SUNRISE GOLD & CRIMSON ERA EXPANSION) ---
             const flashDOM = document.getElementById('event-horizon-flash');
-            if (scrollProgress > 0.93) {
-                // Fade to white/red aggressively
-                const flashOpacity = (scrollProgress - 0.93) / 0.07;
-                flashDOM.style.opacity = Math.min(flashOpacity, 1);
+            const blackoutDOM = document.getElementById('nolan-blackout');
+
+            if (scrollProgress > 0.68 && scrollProgress < 0.985) {
+                // Shift background and fog towards warm sunrise gold / red bloom
+                const warmFactor = Math.min((scrollProgress - 0.68) / 0.25, 1);
                 
-                // Add a subtle red tint to the whiteout (The Haki / Dawn)
-                flashDOM.style.background = `rgba(255, ${255 - flashOpacity*50}, ${255 - flashOpacity*50}, 1)`;
-            } else {
+                const darkColor = new THREE.Color(0x000000);
+                const warmColor = new THREE.Color(0x7c2d12); // Deep sunrise gold/amber-red
+                const currentColor = darkColor.clone().lerp(warmColor, warmFactor * 0.85);
+                
+                scene.background = currentColor;
+                scene.fog.color = currentColor;
+
+                // Warm radial glow flood on overlay
+                const alpha = warmFactor * 0.7;
+                flashDOM.style.opacity = alpha;
+                flashDOM.style.background = `radial-gradient(circle at center, rgba(245, 158, 11, ${alpha}) 0%, rgba(185, 28, 28, ${alpha * 0.85}) 55%, rgba(0, 0, 0, 0) 100%)`;
+            } else if (scrollProgress <= 0.68) {
+                scene.background.setHex(0x000000);
+                scene.fog.color.setHex(0x000000);
                 flashDOM.style.opacity = 0;
-                flashDOM.style.background = 'white';
+            }
+
+            // --- CHRISTOPHER NOLAN SMASH-CUT TO BLACK (PITCH BLACK ENDING) ---
+            if (scrollProgress >= 0.985) {
+                blackoutDOM.style.opacity = 1;
+                document.getElementById('tick-indicator').style.opacity = 0;
+            } else {
+                blackoutDOM.style.opacity = 0;
             }
 
             // Handle HTML Text fading based on scroll milestones
@@ -529,6 +646,113 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
+        // --- YOUTUBE AUDIO PLAYER INTEGRATION (AUTO-PLAY NO PROMPT) ---
+        let player;
+        let isMutedOrPaused = false;
+
+        // Load YouTube IFrame API dynamically
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('yt-player', {
+                height: '0',
+                width: '0',
+                videoId: 'cScVoZWVDLQ',
+                playerVars: {
+                    'autoplay': 1,
+                    'loop': 1,
+                    'playlist': 'cScVoZWVDLQ',
+                    'controls': 0,
+                    'showinfo': 0,
+                    'autohide': 1,
+                    'modestbranding': 1,
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        // --- AUTOMATIC FULLSCREEN TRIGGER ON FIRST INTERACTION ---
+        function triggerFullscreen() {
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(() => {});
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) {
+                    docEl.msRequestFullscreen();
+                }
+            }
+        }
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+            updateMusicBtn(true);
+            
+            // Seamless auto-play fallback on first user micro-interaction
+            const autoPlayAudio = () => {
+                triggerFullscreen();
+                if (player && typeof player.playVideo === 'function') {
+                    player.playVideo();
+                    if (player.unMute) player.unMute();
+                    updateMusicBtn(true);
+                }
+                ['pointermove', 'mousemove', 'scroll', 'touchstart', 'click', 'keydown'].forEach(evt => {
+                    window.removeEventListener(evt, autoPlayAudio);
+                });
+            };
+
+            ['pointermove', 'mousemove', 'scroll', 'touchstart', 'click', 'keydown'].forEach(evt => {
+                window.addEventListener(evt, autoPlayAudio, { once: true, passive: true });
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                updateMusicBtn(true);
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                updateMusicBtn(false);
+            } else if (event.data === YT.PlayerState.ENDED) {
+                if (player && typeof player.playVideo === 'function') {
+                    player.playVideo(); // Loop guarantee
+                }
+            }
+        }
+
+        const musicBtn = document.getElementById('music-btn');
+        const musicIcon = document.getElementById('music-icon');
+
+        function updateMusicBtn(playing) {
+            isMutedOrPaused = !playing;
+            if (musicIcon) {
+                musicIcon.textContent = playing ? "🔊" : "🔇";
+            }
+            if (musicBtn) {
+                musicBtn.style.opacity = playing ? "1" : "0.6";
+            }
+        }
+
+        if (musicBtn) {
+            musicBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!player || typeof player.playVideo !== 'function') return;
+                if (isMutedOrPaused) {
+                    player.playVideo();
+                    if (player.unMute) player.unMute();
+                    updateMusicBtn(true);
+                } else {
+                    player.pauseVideo();
+                    updateMusicBtn(false);
+                }
+            });
+        }
     </script>
 </body>
 </html>
