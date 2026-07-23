@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/sudhanshu_the_nolan_cut.html"
+    }
+  ]
+}
