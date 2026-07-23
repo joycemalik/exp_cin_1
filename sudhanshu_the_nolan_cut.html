@@ -176,32 +176,138 @@
             50% { opacity: 0.8; }
         }
 
-        /* Music Control Button (Minimal Icon Only) */
+        /* IMAX Voyage Start Overlay */
+        #voyage-start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+        }
+
+        #voyage-start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-card {
+            text-align: center;
+            padding: 45px 55px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(25px);
+            border-radius: 4px;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.2);
+        }
+
+        .nolan-sub {
+            font-size: 0.75rem;
+            letter-spacing: 0.6em;
+            color: #888888;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .start-btn {
+            background: transparent;
+            border: 1px solid rgba(245, 158, 11, 0.7);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            padding: 16px 36px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+        }
+
+        .start-btn:hover {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: #f59e0b;
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.6);
+            transform: scale(1.05);
+        }
+
+        .start-hint {
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 22px;
+            text-transform: uppercase;
+        }
+
+        /* Ultra-Cinematic Audio Equalizer Button */
         .music-icon-btn {
             position: fixed;
             bottom: 4vh;
             right: 4vw;
-            z-index: 60;
-            width: 44px;
-            height: 44px;
+            z-index: 80;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             cursor: pointer;
-            backdrop-filter: blur(8px);
-            transition: all 0.25s ease;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 10px rgba(245, 158, 11, 0.2);
         }
 
         .music-icon-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.8);
-            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(245, 158, 11, 0.8);
+            transform: scale(1.12);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .sound-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 18px;
+            width: 20px;
+        }
+
+        .sound-wave .bar {
+            width: 2px;
+            height: 100%;
+            background-color: #f59e0b;
+            border-radius: 2px;
+            transition: height 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Equalizer Animation when Audio is ON */
+        .sound-wave.playing .bar-1 { animation: soundBar 1.2s ease-in-out infinite alternate; }
+        .sound-wave.playing .bar-2 { animation: soundBar 0.8s ease-in-out infinite alternate 0.2s; }
+        .sound-wave.playing .bar-3 { animation: soundBar 1.5s ease-in-out infinite alternate 0.4s; }
+        .sound-wave.playing .bar-4 { animation: soundBar 1.0s ease-in-out infinite alternate 0.1s; }
+
+        @keyframes soundBar {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+
+        /* Muted / Paused state */
+        .sound-wave.muted .bar {
+            height: 3px !important;
+            animation: none !important;
+            background-color: rgba(255, 255, 255, 0.4);
         }
 
         #youtube-audio-container {
@@ -646,7 +752,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- YOUTUBE AUDIO PLAYER INTEGRATION (AUTO-PLAY NO PROMPT) ---
+        // --- YOUTUBE AUDIO PLAYER INTEGRATION (START AT 15S MARK) ---
         let player;
         let isMutedOrPaused = false;
 
@@ -665,6 +771,7 @@
                     'autoplay': 1,
                     'loop': 1,
                     'playlist': 'cScVoZWVDLQ',
+                    'start': 15,
                     'controls': 0,
                     'showinfo': 0,
                     'autohide': 1,
@@ -678,8 +785,19 @@
             });
         }
 
-        // --- AUTOMATIC FULLSCREEN TRIGGER ON FIRST INTERACTION ---
-        function triggerFullscreen() {
+        // --- AUTOMATIC FULLSCREEN & EXPERIENCE INITIALIZER ---
+        let experienceStarted = false;
+
+        function startExperience() {
+            if (experienceStarted) return;
+            experienceStarted = true;
+
+            const overlay = document.getElementById('voyage-start-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+            }
+
+            // Trigger Fullscreen on user gesture
             const docEl = document.documentElement;
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                 if (docEl.requestFullscreen) {
@@ -690,28 +808,29 @@
                     docEl.msRequestFullscreen();
                 }
             }
+
+            // Start YouTube Music at 15s mark
+            if (player && typeof player.playVideo === 'function') {
+                player.seekTo(15);
+                player.playVideo();
+                if (player.unMute) player.unMute();
+                updateMusicBtn(true);
+            }
         }
 
+        const startOverlay = document.getElementById('voyage-start-overlay');
+        if (startOverlay) {
+            startOverlay.addEventListener('click', startExperience);
+        }
+
+        ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, startExperience, { once: true, passive: true });
+        });
+
         function onPlayerReady(event) {
+            event.target.seekTo(15);
             event.target.playVideo();
             updateMusicBtn(true);
-            
-            // Seamless auto-play fallback on first user micro-interaction
-            const autoPlayAudio = () => {
-                triggerFullscreen();
-                if (player && typeof player.playVideo === 'function') {
-                    player.playVideo();
-                    if (player.unMute) player.unMute();
-                    updateMusicBtn(true);
-                }
-                ['pointermove', 'mousemove', 'scroll', 'touchstart', 'click', 'keydown'].forEach(evt => {
-                    window.removeEventListener(evt, autoPlayAudio);
-                });
-            };
-
-            ['pointermove', 'mousemove', 'scroll', 'touchstart', 'click', 'keydown'].forEach(evt => {
-                window.addEventListener(evt, autoPlayAudio, { once: true, passive: true });
-            });
         }
 
         function onPlayerStateChange(event) {
@@ -720,22 +839,29 @@
             } else if (event.data === YT.PlayerState.PAUSED) {
                 updateMusicBtn(false);
             } else if (event.data === YT.PlayerState.ENDED) {
-                if (player && typeof player.playVideo === 'function') {
-                    player.playVideo(); // Loop guarantee
+                if (player && typeof player.seekTo === 'function') {
+                    player.seekTo(15);
+                    player.playVideo(); // Loop from 15s
                 }
             }
         }
 
         const musicBtn = document.getElementById('music-btn');
-        const musicIcon = document.getElementById('music-icon');
+        const soundWave = document.getElementById('sound-wave');
 
         function updateMusicBtn(playing) {
             isMutedOrPaused = !playing;
-            if (musicIcon) {
-                musicIcon.textContent = playing ? "🔊" : "🔇";
+            if (soundWave) {
+                if (playing) {
+                    soundWave.classList.add('playing');
+                    soundWave.classList.remove('muted');
+                } else {
+                    soundWave.classList.remove('playing');
+                    soundWave.classList.add('muted');
+                }
             }
             if (musicBtn) {
-                musicBtn.style.opacity = playing ? "1" : "0.6";
+                musicBtn.style.opacity = playing ? "1" : "0.5";
             }
         }
 
@@ -744,6 +870,7 @@
                 e.stopPropagation();
                 if (!player || typeof player.playVideo !== 'function') return;
                 if (isMutedOrPaused) {
+                    player.seekTo(15);
                     player.playVideo();
                     if (player.unMute) player.unMute();
                     updateMusicBtn(true);
